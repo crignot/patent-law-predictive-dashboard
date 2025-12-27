@@ -1,0 +1,6 @@
+streamlit
+pandas
+joblib
+matplotlib
+plotly
+xgboost==1.7.6
