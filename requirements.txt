@@ -1,6 +1,9 @@
 streamlit
 pandas
+numpy
 joblib
 matplotlib
 plotly
+scikit-learn
+imbalanced-learn
 xgboost==1.7.6
