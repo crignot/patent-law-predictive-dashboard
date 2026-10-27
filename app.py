@@ -6,6 +6,7 @@ import streamlit as st
 
 from utils.features import TECH_CENTERS, MODEL_COLUMNS
 from utils.header import render_header
+from utils.labels import feature_label
 from utils.model import load_model, predict
 from pathlib import Path
 
@@ -138,10 +139,12 @@ st.caption("Per-feature contributions for this one prediction (XGBoost TreeSHAP,
 c = contribs.iloc[0].rename("contribution").reset_index().rename(columns={"index": "feature"})
 c = c[c["contribution"].abs() > 1e-4].reindex(c["contribution"].abs().sort_values(ascending=False).index).head(10)
 c["direction"] = c["contribution"].map(lambda v: "toward grant" if v > 0 else "toward abandonment")
-c["feature"] = c["feature"].map(lambda f: f"{f} = {X.iloc[0][f]:g}")
-st.plotly_chart(px.bar(c.sort_values("contribution"), x="contribution", y="feature", orientation="h",
-                       color="direction", color_discrete_map={"toward grant": "#2ca02c", "toward abandonment": "#d62728"}),
-                use_container_width=True)
+c["feature"] = c["feature"].map(lambda f: f"{feature_label(f)} = {X.iloc[0][f]:g}")
+fig = px.bar(c.sort_values("contribution"), x="contribution", y="feature", orientation="h", color="direction",
+             color_discrete_map={"toward grant": "#2ca02c", "toward abandonment": "#d62728"},
+             labels={"contribution": "Contribution (log-odds)", "feature": "", "direction": ""})
+fig.update_layout(legend=dict(orientation="h", y=1.08, x=0))
+st.plotly_chart(fig, use_container_width=True)
 
 #what-if
 st.markdown("## What-if: change in model prediction")
@@ -167,4 +170,6 @@ imp_path = ROOT / "reports" / "feature_importance_gain.csv"
 if imp_path.exists():
     imp = pd.read_csv(imp_path, index_col=0)["gain"].head(12).reset_index()
     imp.columns = ["feature", "gain"]
-    st.plotly_chart(px.bar(imp.sort_values("gain"), x="gain", y="feature", orientation="h"), use_container_width=True)
+    imp["feature"] = imp["feature"].map(feature_label)
+    st.plotly_chart(px.bar(imp.sort_values("gain"), x="gain", y="feature", orientation="h",
+                           labels={"gain": "Average gain", "feature": ""}), use_container_width=True)
