@@ -4,13 +4,18 @@ Both scripts/train_evaluate.py and the Streamlit app call build_features(), so a
 prediction in the app is computed from exactly the same columns the model was
 trained on.
 
-Prediction moment: the day the FIRST office action on an application is mailed.
-Every input below is known at that moment.
+Prediction moment: the day the first OBSERVED office action on an application is mailed
+(the earliest action in the 2008-2017 Office Action dataset; earlier actions may exist).
+Every input below comes from that action or the examination record on that day.
+
+Applicant entity size is deliberately NOT a feature: PatEx stores the status as of the 2022
+snapshot, not at the time of the action (e.g. 7,612 actions mailed before micro-entity status
+existed on 2013-03-19 are labeled MICRO), so it would leak future information.
 """
 
 import pandas as pd
 
-# Raw fields taken from the first office action (USPTO Office Action Research
+# Raw fields taken from the first observed office action (USPTO Office Action Research
 # Dataset, office_actions table). All are 0/1 flags except cite103_max.
 ACTION_FLAGS = [
     "rejection_101",   # subject-matter eligibility rejection
@@ -45,14 +50,12 @@ TECH_CENTERS = {
 }
 TECH_CENTER_COLUMNS = [f"tc_{code}" for code in TECH_CENTERS]
 
-# Applicant entity size from PatEx (fee status claimed by the applicant; large entity is the baseline)
-ENTITY_SIZES = {"SMALL": "entity_small", "MICRO": "entity_micro"}
 # Who signed the first action (office_actions.signature_type): 0 examiner only, 1 primary examiner,
 # 2 examiner + primary, 3 examiner + supervisor, 4 examiner + primary/supervisor + director
 SIGNATURE_COLUMNS = [f"signature_{k}" for k in (1, 2, 3, 4)]
-APPLICANT_EXAMINER_COLUMNS = list(ENTITY_SIZES.values()) + SIGNATURE_COLUMNS
+EXAMINER_COLUMNS = SIGNATURE_COLUMNS
 
-MODEL_COLUMNS = ACTION_FLAGS + CITATION_FIELDS + TIMING_FIELDS + APPLICANT_EXAMINER_COLUMNS + TECH_CENTER_COLUMNS
+MODEL_COLUMNS = ACTION_FLAGS + CITATION_FIELDS + TIMING_FIELDS + EXAMINER_COLUMNS + TECH_CENTER_COLUMNS
 
 # Column groups used for ablations
 FEATURE_GROUPS = {
@@ -75,7 +78,7 @@ def build_features(raw: pd.DataFrame) -> pd.DataFrame:
     """Turn raw first-office-action fields into the model matrix (one row per application).
 
     `raw` needs: the ACTION_FLAGS and CITATION_FIELDS columns, `art_unit`,
-    `first_action_year`, `months_to_first_action`, `entity_size`, and `signature_type`.
+    `first_action_year`, `months_to_first_action`, and `signature_type`.
     """
     X = pd.DataFrame(index=raw.index)
     for col in ACTION_FLAGS + CITATION_FIELDS:
@@ -83,9 +86,6 @@ def build_features(raw: pd.DataFrame) -> pd.DataFrame:
     X["first_action_year"] = pd.to_numeric(raw["first_action_year"], errors="coerce")
     X["months_to_first_action"] = pd.to_numeric(raw["months_to_first_action"], errors="coerce")
 
-    entity = raw["entity_size"].astype(str).str.upper()
-    for size, col in ENTITY_SIZES.items():
-        X[col] = (entity == size).astype(int)
     sig = pd.to_numeric(raw["signature_type"], errors="coerce")
     for k in (1, 2, 3, 4):
         X[f"signature_{k}"] = (sig == k).astype(int)

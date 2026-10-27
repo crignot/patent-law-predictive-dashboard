@@ -10,7 +10,7 @@ st.title("About This Project")
 with st.container(border=True):
     st.markdown("""
 This dashboard was built as part of a JCP research initiative studying how what happens in a patent
-application's **first office action** relates to whether the application is eventually granted.
+application's **first observed office action** relates to whether the application is eventually granted.
 
 The data joins the USPTO Office Action Research Dataset (about 2.2 million utility applications whose first
 office action was mailed between 2008 and 2017) with final outcomes from the USPTO Patent Examination

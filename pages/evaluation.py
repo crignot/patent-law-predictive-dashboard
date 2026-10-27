@@ -22,10 +22,10 @@ if not (REPORTS / "model_comparison.csv").exists():
 split = json.loads((REPORTS / "split.json").read_text())
 st.markdown(
     f"""
-**Task:** at the first office action, predict whether the application is eventually **granted** (1) or **abandoned** (0).
+**Task:** at the first observed office action, predict whether the application is eventually **granted** (1) or **abandoned** (0).
 Applications still pending in the 2022 data are excluded.
 
-**Time-based split** (by year the first action was mailed; no shuffling, no resampling):
+**Time-based split** (by year the first observed action was mailed; no shuffling, no resampling):
 - Train {split['train']['years'][0]}–{split['train']['years'][1]}: {split['train']['n']:,} applications ({split['train']['granted_rate']:.1%} granted)
 - Validation {split['validation']['years'][0]}: {split['validation']['n']:,} ({split['validation']['granted_rate']:.1%} granted), used for hyperparameters and the threshold
 - Test {split['test']['years'][0]}–{split['test']['years'][1]}: {split['test']['n']:,} ({split['test']['granted_rate']:.1%} granted), evaluated once
@@ -77,13 +77,13 @@ st.caption(f"Threshold {cm['threshold']:.2f}, chosen on validation data to maxim
 st.markdown("### Performance by slice (test set)")
 SLICE_FORMAT = {"Applications": "{:,}", "Actual grant rate": "{:.1%}", "Mean predicted": "{:.1%}",
                 "Accuracy at threshold": "{:.1%}", "ROC-AUC": "{:.3f}"}
-t1, t2 = st.tabs(["Technology center", "Year of first action"])
+t1, t2 = st.tabs(["Technology center", "Year of first observed action"])
 with t1:
     tc = pd.read_csv(REPORTS / "slices_tech_center.csv").drop(columns="tech_center")
     tc = tc[tc["applications"] >= 100].rename(columns=COLUMN_LABELS).set_index("Technology center")
     st.dataframe(tc.style.format(SLICE_FORMAT), use_container_width=True)
 with t2:
-    yr = pd.read_csv(REPORTS / "slices_year.csv").rename(columns=COLUMN_LABELS).set_index("First action year")
+    yr = pd.read_csv(REPORTS / "slices_year.csv").rename(columns=COLUMN_LABELS).set_index("First observed action year")
     st.dataframe(yr.style.format(SLICE_FORMAT), use_container_width=True)
 st.caption("Compare **Mean predicted** with **Actual grant rate**: a gap means the model is over- or under-confident "
            "for that slice. Technology centers with fewer than 100 test applications are hidden.")

@@ -12,8 +12,8 @@ DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 st.set_page_config(page_title="EDA Insights", layout="wide")
 render_header()
 st.title("USPTO Exploratory Data Insights")
-st.caption("All rates are the share of applications **eventually granted**, grouped by what was in their first "
-           "office action (2008–2017 first actions, outcomes as of the 2022 PatEx release). These are descriptive "
+st.caption("All rates are the share of applications **eventually granted**, grouped by what was in their first observed "
+           "office action (mailed 2008–2017; outcomes as of the 2022 PatEx release). These are descriptive "
            "associations, not causal effects.")
 
 eda_tc = pd.read_csv(DATA_DIR / "eda_tc_grant_rate.csv")
@@ -24,7 +24,7 @@ eda_allow = pd.read_csv(DATA_DIR / "eda_grant_rate_by_allowable_claims.csv")
 
 LABELS = {"grant_rate": "Eventual grant rate", "applications": "Applications", "TechCenter": "Technology center",
           "flag": "Rejection type", "present": "", "cite103_max_capped": "Max references in a §103 rejection",
-          "first_action": "", "first_action_year": "Year of first action"}
+          "first_action": "", "first_action_year": "Year of first observed action"}
 
 
 def show(fig):
@@ -42,12 +42,12 @@ with tab1:
          .update_layout(xaxis_tickformat=".0%", yaxis_tickformat=None))
 
 with tab2:
-    d = eda_rej.assign(present=eda_rej["value"].map({0: "Not in first action", 1: "In first action"}),
+    d = eda_rej.assign(present=eda_rej["value"].map({0: "Not in first observed action", 1: "In first observed action"}),
                        flag=eda_rej["flag"].map(feature_label))
     show(px.bar(d, x="flag", y="grant_rate", color="present", barmode="group", hover_data=["applications"],
                 labels=LABELS, text_auto=".0%",
-                color_discrete_map={"Not in first action": "#9ecae1", "In first action": "#08519c"},
-                title="Grant rate when each rejection type does / does not appear in the first action"))
+                color_discrete_map={"Not in first observed action": "#9ecae1", "In first observed action": "#08519c"},
+                title="Grant rate when each rejection type does / does not appear in the first observed action"))
 
 with tab3:
     show(px.line(eda_cite, x="cite103_max_capped", y="grant_rate", markers=True, hover_data=["applications"],
@@ -56,8 +56,8 @@ with tab3:
 with tab4:
     d = eda_allow.assign(first_action=eda_allow["allowed_claims"].map({0: "No allowable claims", 1: "Some claims allowable"}))
     show(px.bar(d, x="first_action", y="grant_rate", hover_data=["applications"], labels=LABELS, text_auto=".0%",
-                title="Grant rate when the first action already indicates allowable claims"))
+                title="Grant rate when the first observed action already indicates allowable claims"))
 
 with tab5:
     show(px.line(eda_year, x="first_action_year", y="grant_rate", markers=True, hover_data=["applications"],
-                 labels=LABELS, title="Grant rate by year of first action"))
+                 labels=LABELS, title="Grant rate by year of first observed action"))

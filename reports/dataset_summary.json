@@ -2,6 +2,7 @@
   "office_action_rows": 4384532,
   "office_action_applications": 2188039,
   "applications_with_dated_first_action": 2188039,
+  "first_observed_action_is_final_rejection": 28437,
   "applications_matched_to_patex": 2188025,
   "utility_applications": 2181339,
   "after_date_and_art_unit_checks": 2169516,

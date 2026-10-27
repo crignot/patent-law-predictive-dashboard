@@ -37,9 +37,9 @@ examples = get_examples()
 
 st.markdown("## Allowance Prediction")
 st.write(
-    "Estimates the probability that an application is **eventually granted**, using only what is known on the day "
-    "its **first office action** is mailed: the rejections and citations in that action, the art unit, timing, "
-    "and the applicant's entity size."
+    "Estimates the probability that an application is **eventually granted**, using information from its "
+    "**first observed office action** (the earliest action in the 2008–2017 USPTO Office Action dataset): the "
+    "rejections and citations in that action, the art unit, timing, and who signed it."
 )
 
 if booster is None:
@@ -74,7 +74,7 @@ mode = st.radio("Input", ["Load an example office action", "Enter office action 
 if mode == "Load an example office action" and examples is not None:
     label = examples.apply(
         lambda r: f"App {r.app_id} · TC {str(r.art_unit)[:2]}00 · {int(r.first_action_year)}", axis=1)
-    choice = st.selectbox("Held-out test example (first actions mailed 2015–2017)", label.tolist())
+    choice = st.selectbox("Held-out test example (first observed actions mailed 2015–2017)", label.tolist())
     row = examples.loc[label == choice].iloc[[0]].copy()
     actual = int(row["granted"].iloc[0])
     raw = row.drop(columns=["granted", "app_id"])
@@ -87,13 +87,12 @@ else:
             tc_label = st.selectbox("Technology center", list(TC_OPTIONS), index=2,
                                     help="The model uses the technology center (first two digits of the art unit).")
             art_unit = str(TC_OPTIONS[tc_label])
-            entity = st.selectbox("Applicant entity size", ["UNDISCOUNTED", "SMALL", "MICRO"])
-            year = st.number_input("Year first action was mailed", 2008, 2017, 2016,
+            year = st.number_input("Year first observed action was mailed", 2008, 2017, 2016,
                                    help="The model was trained on 2008–2013 actions; years outside 2008–2017 are not supported.")
-            months = st.number_input("Months from filing to first action", 0.0, 120.0, 18.0, 0.5)
+            months = st.number_input("Months from filing to first observed action", 0.0, 120.0, 18.0, 0.5)
             signature = st.selectbox("Signed by", list(SIGNATURE_OPTIONS))
         with c2:
-            st.markdown("**Rejections / objections in the first action**")
+            st.markdown("**Rejections / objections in the first observed action**")
             flags = {k: int(st.checkbox(FLAG_LABELS[k], value=(k == "rejection_103")))
                      for k in ["rejection_101", "rejection_102", "rejection_103", "rejection_112", "rejection_dp",
                                "objection", "allowed_claims"]}
@@ -102,7 +101,7 @@ else:
             cites = {k: int(st.checkbox(FLAG_LABELS[k])) for k in ["cite102_gt1", "cite103_gt3", "cite103_eq1"]}
             cite_max = st.number_input("Max references cited in a §103 rejection", 0, 20, 2)
         st.form_submit_button("Predict")
-    raw = pd.DataFrame([{**flags, **cites, "cite103_max": cite_max, "art_unit": art_unit, "entity_size": entity,
+    raw = pd.DataFrame([{**flags, **cites, "cite103_max": cite_max, "art_unit": art_unit,
                          "signature_type": SIGNATURE_OPTIONS[signature], "first_action_year": year,
                          "months_to_first_action": months}])
 
@@ -128,9 +127,9 @@ with col1:
 with col2:
     st.markdown("### Input summary")
     present = [FLAG_LABELS[k] for k in FLAG_LABELS if int(raw[k].iloc[0]) == 1]
-    st.write(f"- Technology center {str(raw['art_unit'].iloc[0])[:2]}00, first action in {int(raw['first_action_year'].iloc[0])}, "
-             f"{float(raw['months_to_first_action'].iloc[0]):.1f} months after filing, {str(raw['entity_size'].iloc[0]).lower()} entity.")
-    st.write("- In the first action: " + (", ".join(present) if present else "no rejections or objections flagged") + ".")
+    st.write(f"- Technology center {str(raw['art_unit'].iloc[0])[:2]}00, first observed action in {int(raw['first_action_year'].iloc[0])}, "
+             f"{float(raw['months_to_first_action'].iloc[0]):.1f} months after filing.")
+    st.write("- In the first observed action: " + (", ".join(present) if present else "no rejections or objections flagged") + ".")
     st.write(f"- Max references in a §103 rejection: {int(raw['cite103_max'].iloc[0])}.")
 
 st.markdown("### What pushed this prediction up or down")
@@ -148,7 +147,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 #what-if
 st.markdown("## What-if: change in model prediction")
-with st.expander("Toggle first-action fields and compare the model's output", expanded=False):
+with st.expander("Toggle fields from the first observed action and compare the model's output", expanded=False):
     st.caption("This shows how the model's prediction changes when an input changes. It does not show that "
                "changing the real application would change its outcome.")
     w = raw.copy()
