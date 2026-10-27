@@ -22,18 +22,21 @@ with st.sidebar:
 
 
 @st.cache_resource
-def get_model():
+def get_model(model_version: float):
+    # keyed on the model file's mtime so a retrained model replaces the cached one after a redeploy
     return load_model()
 
 
 @st.cache_data
-def get_examples():
+def get_examples(examples_version: float):
     path = ROOT / "data" / "example_office_actions.csv"
     return pd.read_csv(path, dtype={"app_id": str, "art_unit": str}) if path.exists() else None
 
 
-booster, meta = get_model()
-examples = get_examples()
+MODEL_FILE = ROOT / "models" / "xgb_model.json"
+booster, meta = get_model(MODEL_FILE.stat().st_mtime if MODEL_FILE.exists() else 0.0)
+EXAMPLES_FILE = ROOT / "data" / "example_office_actions.csv"
+examples = get_examples(EXAMPLES_FILE.stat().st_mtime if EXAMPLES_FILE.exists() else 0.0)
 
 st.markdown("## Allowance Prediction")
 st.write(
