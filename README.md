@@ -131,10 +131,6 @@ runs without downloading the raw data.
 └── notebooks/patent_notebook.ipynb
 ```
 
-## My contribution
-
-<!-- TODO(human): describe your individual role on this team project -->
-
 ## Changes from the first version
 
 The original notebook applied SMOTE before the train/test split and evaluated on the resampled data, used
