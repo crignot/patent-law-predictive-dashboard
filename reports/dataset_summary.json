@@ -1,0 +1,16 @@
+{
+  "office_action_rows": 4384532,
+  "office_action_applications": 2188039,
+  "applications_with_dated_first_action": 2188039,
+  "applications_matched_to_patex": 2188025,
+  "utility_applications": 2181339,
+  "after_date_and_art_unit_checks": 2169516,
+  "label_granted": 1494344,
+  "label_abandoned": 673191,
+  "label_unknown_excluded": 1981,
+  "modeling_rows": 2167535,
+  "first_action_date_range": [
+    "2008-03-19",
+    "2017-07-11"
+  ]
+}

@@ -1,0 +1,6 @@
+#### What the largest errors show
+
+- **Confident "granted" predictions that were abandoned** are mostly micro-entity applicants whose first action already indicated allowable claims, and whose status is *"Abandoned — Failure to Respond to an Office Action."* The examination record looked favorable; the application was dropped by the applicant. The model has no signal for applicant resources or intent (cost, priorities, a changed business plan), which is a real limit of predicting outcomes from examination data alone.
+- **Low "granted" scores that were granted** are mostly small-entity applications in Technology Center 3600 (business methods) whose first action raised §101, §102, §103, and §112 rejections together. Most such applications are abandoned, but these were pursued and eventually allowed. Persistence after a heavy first action is not visible at the prediction moment.
+- **By technology center,** ranking quality is lowest in biotech and chemical (ROC-AUC about 0.64) and highest in business methods (about 0.73). Predicted and actual grant rates stay within a few points in every center with meaningful volume.
+- **Calibration** is close to the diagonal on the 2015–2017 test years; the lowest-probability decile is slightly under-predicted (about 40% predicted vs. 43% observed).
