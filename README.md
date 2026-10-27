@@ -92,6 +92,10 @@ application would change its outcome.
   matrix, slices by technology center and year (with actual grant rates and counts), and the largest errors.
 - **EDA Insights, Feature Glossary, About.**
 
+| Predict (held-out 2016 example) | Model Evaluation |
+|---|---|
+| ![Prediction page](docs/screenshot_predict.jpg) | ![Evaluation page](docs/screenshot_evaluation.jpg) |
+
 ## Reproducing the results
 
 ```bash

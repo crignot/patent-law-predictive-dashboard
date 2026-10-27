@@ -138,6 +138,7 @@ st.caption("Per-feature contributions for this one prediction (XGBoost TreeSHAP,
 c = contribs.iloc[0].rename("contribution").reset_index().rename(columns={"index": "feature"})
 c = c[c["contribution"].abs() > 1e-4].reindex(c["contribution"].abs().sort_values(ascending=False).index).head(10)
 c["direction"] = c["contribution"].map(lambda v: "toward grant" if v > 0 else "toward abandonment")
+c["feature"] = c["feature"].map(lambda f: f"{f} = {X.iloc[0][f]:g}")
 st.plotly_chart(px.bar(c.sort_values("contribution"), x="contribution", y="feature", orientation="h",
                        color="direction", color_discrete_map={"toward grant": "#2ca02c", "toward abandonment": "#d62728"}),
                 use_container_width=True)
