@@ -13,8 +13,6 @@
     "cite103_max",
     "first_action_year",
     "months_to_first_action",
-    "entity_small",
-    "entity_micro",
     "signature_1",
     "signature_2",
     "signature_3",
@@ -29,9 +27,9 @@
     "tc_3600",
     "tc_3700"
   ],
-  "threshold": 0.705,
-  "max_depth": 6,
-  "n_trees": 173,
+  "threshold": 0.71,
+  "max_depth": 4,
+  "n_trees": 415,
   "splits": {
     "train": {
       "years": [
@@ -58,6 +56,6 @@
       "granted_rate": 0.7067078681395009
     }
   },
-  "task": "P(application eventually granted | first office action)",
+  "task": "P(application eventually granted | first observed office action)",
   "train_grant_rate": 0.6740924189676796
 }

@@ -1,4 +1,4 @@
-"""Build the modeling dataset: one row per application, features from its FIRST office action,
+"""Build the modeling dataset: one row per application, features from its first OBSERVED office action,
 label = whether the application was eventually granted.
 
 Inputs (download from USPTO, not committed; see README "Reproducing the results"):
@@ -60,6 +60,9 @@ def main(raw_dir: Path) -> None:
     oa = oa.sort_values(["app_id", "mail_dt", "is_final", "ifw_number"])
     first = oa.drop_duplicates("app_id", keep="first").copy()
     counts["applications_with_dated_first_action"] = len(first)
+    # A final rejection normally follows a non-final one, so a CTFR as the earliest observed action
+    # shows that some applications had earlier actions outside the dataset.
+    counts["first_observed_action_is_final_rejection"] = int((first["document_cd"] == "CTFR").sum())
 
     app_cols = ["application_number", "filing_date", "application_invention_type", "appl_status_desc",
                 "patent_number", "patent_issue_date", "small_entity_indicator"]

@@ -1,6 +1,6 @@
 """Train and evaluate allowance models on a time-based split.
 
-Task: at the moment an application's FIRST office action is mailed, predict whether the
+Task: at the moment an application's first OBSERVED office action is mailed, predict whether the
 application will eventually be granted (1) or abandoned (0).
 
 Split by first-action year (older -> newer, no shuffling):
@@ -140,7 +140,7 @@ def main():
     model.save_model(MODELS / "xgb_model.json")
     meta = {"columns": MODEL_COLUMNS, "threshold": thr, "max_depth": best_depth,
             "n_trees": int(model.best_iteration + 1), "splits": split_info,
-            "task": "P(application eventually granted | first office action)",
+            "task": "P(application eventually granted | first observed office action)",
             "train_grant_rate": base}
     (MODELS / "model_meta.json").write_text(json.dumps(meta, indent=2))
 
@@ -186,7 +186,7 @@ def main():
     imp.sort_values(ascending=False).rename("gain").to_csv(REPORTS / "feature_importance_gain.csv", header=True)
 
     # held-out examples for the dashboard ("Load an example office action")
-    raw_cols = ["app_id", "first_action_year", "months_to_first_action", "art_unit", "entity_size", "signature_type",
+    raw_cols = ["app_id", "first_action_year", "months_to_first_action", "art_unit", "signature_type",
                 "rejection_101", "rejection_102", "rejection_103", "rejection_112", "rejection_dp", "objection",
                 "allowed_claims", "cite102_gt1", "cite103_gt3", "cite103_eq1", "cite103_max", "granted"]
     ex = pd.concat(test_df[test_df["granted"] == v].sample(60, random_state=SEED) for v in (0, 1))[raw_cols]

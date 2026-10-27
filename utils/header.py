@@ -20,7 +20,7 @@ def render_header():
     <div class="top-banner">
         <h2 style="margin-bottom:0;">USPTO Patent Allowance Prediction Dashboard</h2>
         <p style="margin-top:6px; opacity:0.85;">
-            Estimating, at the first office action, whether a patent application will eventually be granted
+            Estimating, at the first observed office action, whether a patent application will eventually be granted
         </p>
     </div>
     """, unsafe_allow_html=True)
