@@ -1,0 +1,6 @@
+[client]
+# the header bar already links every page; hide Streamlit's auto-generated sidebar list
+showSidebarNavigation = false
+
+[theme]
+primaryColor = "#006699"
