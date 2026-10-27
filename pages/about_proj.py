@@ -1,6 +1,6 @@
 import streamlit as st
 
-from header import render_header
+from utils.header import render_header
 
 st.set_page_config(layout="wide")
 render_header()
@@ -25,18 +25,20 @@ st.title("About This Project")
 # --- PAGE CONTENT ---
 st.markdown("""
 <div class="card">
-This dashboard was built as part of a JCP research initiative studying how USPTO
-Office Actions influence the likelihood that a patent application receives allowance.  
-Our dataset contains thousands of applications across USPTO Technology Centers with detailed
-information on rejection types, citation severity, prior-art characteristics, and outcomes.
+This dashboard was built as part of a JCP research initiative studying how what happens in a
+patent application's <b>first office action</b> relates to whether the application is eventually granted.
 
-The goal is to make these insights usable early in the drafting process by combining:
+The data joins the USPTO Office Action Research Dataset (about 2.2 million utility applications whose
+first office action was mailed between 2008 and 2017) with final outcomes from the USPTO Patent
+Examination Research Dataset (2022 release).
 
-- Exploratory data analysis across USPTO Tech Centers  
-- A trained XGBoost model predicting allowance probability  
-- Scenario testing to evaluate how specific factors influence outcomes  
+The dashboard combines:
 
-This tool **does not replace legal advice**. It provides a data-driven perspective on historical
-examination patterns to support strategic decision-making.
+- Exploratory analysis of grant rates by rejection type, citations, and technology center
+- An XGBoost model, evaluated against baselines on a time-based split
+- A what-if view showing how the model's prediction responds to changes in its inputs
+
+This tool **does not replace legal advice**. It describes historical examination patterns; it does not
+show that changing an application would change its outcome.
 </div>
 """, unsafe_allow_html=True)
