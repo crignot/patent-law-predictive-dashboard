@@ -1,0 +1,7 @@
+{
+  "threshold": 0.705,
+  "true_granted_pred_granted": 330406,
+  "true_granted_pred_abandoned": 206810,
+  "true_abandoned_pred_granted": 76025,
+  "true_abandoned_pred_abandoned": 146926
+}

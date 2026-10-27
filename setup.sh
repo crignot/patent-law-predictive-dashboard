@@ -27,7 +27,7 @@ conda activate patent
 
 #Install python deps
 echo "Installing Python packages..."
-pip install streamlit pandas joblib matplotlib plotly xgboost==1.7.6
+pip install -r requirements.txt
 
 echo "Setup complete"
 echo "Run your app with:"
