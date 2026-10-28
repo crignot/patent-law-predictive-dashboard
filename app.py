@@ -96,12 +96,13 @@ else:
             signature = st.selectbox("Signed by", list(SIGNATURE_OPTIONS))
         with c2:
             st.markdown("**Rejections / objections in the first observed action**")
-            flags = {k: int(st.checkbox(FLAG_LABELS[k], value=(k == "rejection_103")))
+            flags = {k: int(st.checkbox(feature_label(k), value=(k == "rejection_103"), help=FLAG_LABELS[k]))
                      for k in ["rejection_101", "rejection_102", "rejection_103", "rejection_112", "rejection_dp",
                                "objection", "allowed_claims"]}
         with c3:
             st.markdown("**Prior-art citations**")
-            cites = {k: int(st.checkbox(FLAG_LABELS[k])) for k in ["cite102_gt1", "cite103_gt3", "cite103_eq1"]}
+            cites = {k: int(st.checkbox(feature_label(k), help=FLAG_LABELS[k]))
+                     for k in ["cite102_gt1", "cite103_gt3", "cite103_eq1"]}
             cite_max = st.number_input("Max references cited in a §103 rejection", 0, 20, 2)
         st.form_submit_button("Predict")
     raw = pd.DataFrame([{**flags, **cites, "cite103_max": cite_max, "art_unit": art_unit,
@@ -119,11 +120,17 @@ with col1:
     st.metric("Estimated probability of eventual grant", f"{prob*100:.1f}%")
     st.caption(f"Historical grant rate in training data: {meta['train_grant_rate']*100:.1f}%. "
                f"Decision threshold (chosen on 2014 validation data): {threshold:.2f}.")
-    bar_color = "green" if prob >= 0.75 else ("orange" if prob >= threshold else "red")
+    # color by which side of the decision threshold the prediction falls; the tick marks the threshold
+    above = prob >= threshold
+    bar_color = "#2ca02c" if above else "#d62728"
     st.markdown(
-        f"""<div style="height: 20px; background-color: lightgray; border-radius: 5px;">
+        f"""<div style="position: relative; height: 20px; background-color: #e6e6e6; border-radius: 5px;">
               <div style="width: {prob*100}%; height: 100%; background-color: {bar_color}; border-radius: 5px;"></div>
+              <div title="decision threshold" style="position: absolute; left: {threshold*100}%; top: -4px;
+                   height: 28px; border-left: 2px dashed #333;"></div>
             </div>""", unsafe_allow_html=True)
+    st.markdown(f"Model call at the {threshold:.2f} threshold (dashed line): "
+                f"**{'likely granted' if above else 'at risk of abandonment'}**")
     if actual is not None:
         st.info(f"Actual outcome: **{'Granted' if actual == 1 else 'Abandoned'}**")
 
@@ -158,7 +165,7 @@ with st.expander("Toggle fields from the first observed action and compare the m
     for i, k in enumerate(["rejection_101", "rejection_102", "rejection_103", "rejection_112",
                            "objection", "allowed_claims", "cite103_gt3", "cite103_eq1"]):
         with cols[i % 4]:
-            w[k] = int(st.checkbox(FLAG_LABELS[k], value=bool(int(raw[k].iloc[0])), key=f"w_{k}"))
+            w[k] = int(st.checkbox(feature_label(k), value=bool(int(raw[k].iloc[0])), key=f"w_{k}", help=FLAG_LABELS[k]))
     w_prob = float(predict(booster, w)[0][0])
     diff = (w_prob - prob) * 100
     st.markdown(f"**What-if probability:** {w_prob*100:.1f}%  ·  **Change in model prediction:** "
